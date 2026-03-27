@@ -1,27 +1,22 @@
 # EduGestão — Sistema de Gestão Escolar
 
-Sistema web completo para gerenciar **alunos, presença, notas e atividades** das turmas CK 1–4 e CT 1–4.
+Sistema web completo para gerenciar **alunos, presença, notas, atividades e aulas** das turmas CK 1–4 e CT 1–4.
 
 ---
 
-## 🚀 Como usar
+## 🔗 Configurando o Supabase (passo a passo)
 
-1. Abra o arquivo `index.html` no navegador (ou hospede em qualquer servidor estático).
-2. O sistema funciona **offline** (dados no localStorage) ou **com Supabase** para banco de dados real.
-
----
-
-## 🔗 Integração com Supabase
-
-### 1. Crie um projeto no Supabase
-Acesse [supabase.com](https://supabase.com) e crie um projeto gratuito.
+### 1. Crie uma conta e projeto gratuito
+Acesse **[supabase.com](https://supabase.com)** → "Start your project" → crie uma conta → "New project".
 
 ### 2. Crie as tabelas no SQL Editor
+
+No painel do Supabase, vá em **SQL Editor** → "New Query" → cole e execute o SQL abaixo:
 
 ```sql
 -- ALUNOS
 create table alunos (
-  id serial primary key,
+  id bigserial primary key,
   nome text not null,
   matricula text,
   turma text not null
@@ -29,8 +24,8 @@ create table alunos (
 
 -- NOTAS
 create table notas (
-  id serial primary key,
-  aluno_id integer references alunos(id) on delete cascade,
+  id bigserial primary key,
+  aluno_id bigint references alunos(id) on delete cascade,
   disciplina text not null,
   bimestre integer not null,
   nota numeric(4,1) not null,
@@ -39,17 +34,17 @@ create table notas (
 
 -- PRESENÇAS
 create table presencas (
-  id serial primary key,
-  aluno_id integer references alunos(id) on delete cascade,
+  id bigserial primary key,
+  aluno_id bigint references alunos(id) on delete cascade,
   data date not null,
-  status char(1) not null,   -- 'P', 'A', 'J'
+  status char(1) not null,
   justificativa text,
   turma text not null
 );
 
 -- ATIVIDADES
 create table atividades (
-  id serial primary key,
+  id bigserial primary key,
   titulo text not null,
   descricao text,
   disciplina text,
@@ -60,8 +55,8 @@ create table atividades (
 
 -- AULAS
 create table aulas (
-  id serial primary key,
-  tipo text not null,          -- 'regular' (2h) ou 'AE' (1h)
+  id bigserial primary key,
+  tipo text not null,
   disciplina text,
   conteudo text,
   data date not null,
@@ -71,44 +66,65 @@ create table aulas (
 );
 ```
 
-### 3. Habilite RLS (Row Level Security)
-No Supabase, vá em **Authentication → Policies** e crie políticas permissivas para cada tabela, ou desabilite o RLS durante o desenvolvimento:
+### 3. Desabilite o RLS (Row Level Security) para uso interno
+
+Ainda no **SQL Editor**, execute:
 
 ```sql
-alter table alunos    disable row level security;
-alter table notas     disable row level security;
-alter table presencas disable row level security;
+alter table alunos     disable row level security;
+alter table notas      disable row level security;
+alter table presencas  disable row level security;
 alter table atividades disable row level security;
-alter table aulas     disable row level security;
+alter table aulas      disable row level security;
 ```
 
-### 4. Configure no sistema
-- Clique em **⚙ Configurar** no canto inferior esquerdo
-- Cole a **URL do projeto** (ex: `https://abcxyz.supabase.co`)
-- Cole a **Anon Key** (encontrada em Settings → API)
-- Clique **Salvar & Conectar**
+> ⚠ Para uso em produção / com múltiplos usuários, configure políticas RLS adequadas.
+
+### 4. Pegue as credenciais do projeto
+
+No painel do Supabase vá em **Project Settings → API**:
+
+| Campo | Onde encontrar |
+|---|---|
+| **URL do Projeto** | "Project URL" — ex: `https://abcxyzabc.supabase.co` |
+| **Anon Key** | "Project API Keys" → `anon` `public` |
+
+### 5. Configure no EduGestão
+
+Abra o sistema → clique em **⚙ Configurar** (canto inferior esquerdo) → cole a URL e a Anon Key → clique **Salvar & Conectar**.
+
+✅ Se aparecer "Supabase conectado" em verde, está funcionando!  
+❌ Se der erro, verifique se as tabelas foram criadas (passo 2) e se o RLS foi desabilitado (passo 3).
+
+---
+
+## 📁 Estrutura de arquivos
+
+```
+escola-gestao/
+├── index.html   ← estrutura HTML + carrega Supabase via CDN
+├── style.css    ← tema escuro, responsivo
+├── app.js       ← lógica completa + integração Supabase real
+└── README.md    ← este arquivo
+```
 
 ---
 
 ## 📋 Funcionalidades
 
-| Módulo | Funções |
+| Módulo | O que faz |
 |---|---|
-| **Alunos** | Adicionar, editar, remover, buscar |
-| **Presença** | Lançar P/F/J por data, histórico, salvar em lote |
-| **Notas** | Lançar por bimestre e disciplina, editar, remover |
-| **Atividades** | Criar com peso, data de entrega, disciplina |
-| **Aulas** | Registrar aulas Regular (2h) e AE (1h), cálculo automático do término, carga horária total |
-| **Desempenho** | Média geral, frequência, score, conceito A/B/C/D |
-| **Dashboard** | Ranking da turma, alertas de risco, estatísticas |
+| **Alunos** | Adicionar, editar, remover, buscar — salvo no banco |
+| **Presença** | Lançar P/F/J por data, justificativa, histórico |
+| **Notas** | Por bimestre e disciplina, editar, remover |
+| **Atividades** | Com peso, data de entrega, disciplina |
+| **Aulas** | Regular (2h) e AE (1h), término automático, carga horária |
+| **Desempenho** | Média, frequência, conceito A/B/C/D, score composto |
+| **Dashboard** | Ranking, alertas de risco, estatísticas da turma |
 
 ---
 
-## 📁 Estrutura
-```
-escola-gestao/
-├── index.html   ← estrutura HTML
-├── style.css    ← estilos (tema escuro, responsivo)
-├── app.js       ← toda a lógica + integração Supabase
-└── README.md    ← este arquivo
-```
+## 🚀 Como abrir o sistema
+
+Basta abrir o arquivo `index.html` em qualquer navegador moderno.  
+Não precisa de servidor — funciona localmente ou hospedado em qualquer CDN estático (Netlify, Vercel, GitHub Pages).

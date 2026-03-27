@@ -3,10 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestão Escolar</title>
+  <title>EduGestão — Sistema Escolar</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <!-- Supabase JS Client (biblioteca oficial) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Loading overlay */
+    #loading-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.55);
+      backdrop-filter: blur(3px); z-index: 9999;
+      display: none; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+    }
+    .ld-box { display: flex; flex-direction: column; align-items: center; gap: 12px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 28px 36px; }
+    .ld-spin { width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+    .ld-box p { color: var(--text-muted); font-size: 13px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* input de justificativa */
+    .input-just { background:var(--bg3); border:1px solid var(--border); border-radius:6px;
+      padding:5px 10px; color:var(--text); font-size:12px; width:200px; font-family:var(--font-body); outline:none; }
+    .input-just:focus { border-color: var(--accent); }
+  </style>
 </head>
 <body>
 
@@ -14,7 +34,7 @@
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <span class="logo-icon">⬡</span>
-    <span class="logo-text">Gestão Escolar</span>
+    <span class="logo-text">EduGestão</span>
   </div>
 
   <nav class="sidebar-nav">
